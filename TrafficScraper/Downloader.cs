@@ -1,13 +1,22 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Runtime.Serialization;
 
 namespace TrafficScraper
 {
+    [Serializable]
     public class FileExistsException : Exception
     {
-        public FileExistsException(string path) : base($"File {path} already exists!")
+        public FileExistsException(string path) : base(GetMessage(path)) { }
+
+        public FileExistsException(string path, Exception innerException) : base(GetMessage(path), innerException) { }
+
+        public FileExistsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+        private static string GetMessage(string path)
         {
+            return $"File {path} already exists!";
         }
     }
 

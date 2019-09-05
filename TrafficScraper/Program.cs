@@ -22,7 +22,7 @@ namespace TrafficScraper
 
             // Parse the arguments
             DirectoryInfo rawOutputFolder = GetDirectory(arguments, "--raw-dir");
-            DirectoryInfo processedOutputFolder = GetDirectory(arguments, " --processed-dir");
+            DirectoryInfo processedOutputFolder = GetDirectory(arguments, "--processed-dir");
             Options options = new Options
                 {RawDataOutput = rawOutputFolder, ProcessedDataOutput = processedOutputFolder};
 
