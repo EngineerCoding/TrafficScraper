@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -15,6 +16,7 @@ namespace TrafficScraper.Data
             {
                 throw new FileNotFoundException(inputFile);
             }
+
             this.inputFile = inputFile;
         }
 
@@ -23,7 +25,7 @@ namespace TrafficScraper.Data
             using (FileStream fileStream = File.Open(inputFile, FileMode.Open, FileAccess.Read))
             {
                 return FetchTrafficJams(fileStream);
-            } 
+            }
         }
 
         public abstract List<TrafficJam> FetchTrafficJams(FileStream inputFileStream);
@@ -31,8 +33,10 @@ namespace TrafficScraper.Data
 
     public abstract class TextDataReader : DataReader
     {
-        public TextDataReader(string inputFile) : base(inputFile) { }
-        
+        public TextDataReader(string inputFile) : base(inputFile)
+        {
+        }
+
         public override List<TrafficJam> FetchTrafficJams(FileStream inputFileStream)
         {
             using (StreamReader streamReader = new StreamReader(inputFileStream))
@@ -46,7 +50,9 @@ namespace TrafficScraper.Data
 
     public abstract class JsonDataReader : TextDataReader
     {
-        public JsonDataReader(string inputFile) : base(inputFile) { }
+        public JsonDataReader(string inputFile) : base(inputFile)
+        {
+        }
 
         public override List<TrafficJam> FetchTrafficJams(StreamReader inputStreamReader)
         {
@@ -54,5 +60,17 @@ namespace TrafficScraper.Data
         }
 
         public abstract List<TrafficJam> FetchTrafficJams(JToken jToken);
+    }
+
+    public class AnwbJsonDataReader : JsonDataReader
+    {
+        public AnwbJsonDataReader(string inputFile) : base(inputFile)
+        {
+        }
+
+        public override List<TrafficJam> FetchTrafficJams(JToken jToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

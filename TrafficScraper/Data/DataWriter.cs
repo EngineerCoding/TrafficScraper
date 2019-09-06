@@ -5,7 +5,10 @@ namespace TrafficScraper.Data
 {
     public abstract class DataWriter
     {
-        private readonly string outputFile; 
+        private readonly string outputFile;
+
+        public bool IncludeReason { get; set; } = false;
+        public bool IncludeDescription { get; set; } = false;
 
         public DataWriter(string outputFile)
         {
@@ -19,13 +22,32 @@ namespace TrafficScraper.Data
                 WriteTrafficJams(fileStream, trafficJams);
             }
         }
-        
+
         public abstract void WriteTrafficJams(FileStream outputFileStream, List<TrafficJam> trafficJams);
+
+        public string[] GetTrafficJamValues(TrafficJam trafficJam)
+        {
+            string[] values = new string[5 + (IncludeReason ? 1 : 0) + (IncludeDescription ? 1 : 0)];
+            int index = -1;
+            values[++index] = trafficJam.RoadName;
+            values[++index] = trafficJam.FromLocation.LatitudeToString();
+            values[++index] = trafficJam.FromLocation.LongitudeToString();
+            values[++index] = trafficJam.ToLocation.LatitudeToString();
+            values[++index] = trafficJam.ToLocation.LongitudeToString();
+
+            if (IncludeReason)
+                values[++index] = trafficJam.Reason;
+            if (IncludeDescription)
+                values[++index] = trafficJam.Description;
+            return values;
+        }
     }
 
     public abstract class TextDataWriter : DataWriter
     {
-        public TextDataWriter(string outputFile) : base(outputFile) { }
+        public TextDataWriter(string outputFile) : base(outputFile)
+        {
+        }
 
         public override void WriteTrafficJams(FileStream outputFileStream, List<TrafficJam> trafficJams)
         {
@@ -36,5 +58,29 @@ namespace TrafficScraper.Data
         }
 
         public abstract void WriteTrafficJams(StreamWriter streamWriter, List<TrafficJam> trafficJams);
+    }
+
+    public class CsvDataWriter : TextDataWriter
+    {
+        public char Delimiter { get; set; } = ',';
+
+        public CsvDataWriter(string outputFile) : base(outputFile)
+        {
+        }
+
+        public override void WriteTrafficJams(StreamWriter streamWriter, List<TrafficJam> trafficJams)
+        {
+            trafficJams.ForEach(trafficJam => streamWriter.WriteLine(FormatTrafficJam(trafficJam)));
+        }
+
+        /// <summary>
+        /// Format a TrafficJam object to a string delimited by the specified delimiter on this object
+        /// </summary>
+        /// <param name="trafficJam">The object to format</param>
+        /// <returns>The delimiter joined data</returns>
+        private string FormatTrafficJam(TrafficJam trafficJam)
+        {
+            return string.Join(Delimiter, GetTrafficJamValues(trafficJam));
+        }
     }
 }

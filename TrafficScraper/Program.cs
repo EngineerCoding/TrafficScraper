@@ -1,11 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TrafficScraper.Data;
 
 namespace TrafficScraper
 {
     public class Program
     {
+        private static void PrintHelp()
+        {
+            Console.WriteLine("Usage:");
+            Console.WriteLine($"{Environment.GetCommandLineArgs()[0]} [options], where [options] can be:");
+            Console.WriteLine("--help, -h               Show this text");
+            Console.WriteLine("--raw-dir       PATH     The directory to store downloaded files");
+            Console.WriteLine("--processed-dir PATH     The directory to store processed files");
+            Console.WriteLine("--fetch-url     URL      The URL to fetch data from");
+            string writerOptions = string.Join(", ", typeof(WriterOption).GetEnumNames());
+            string readerOptions = string.Join(", ", typeof(ReaderOption).GetEnumNames());
+            Console.WriteLine($"--reader {{{readerOptions}}}");
+            Console.WriteLine($"--writer {{{writerOptions}}}");
+        }
+
         /// <summary>
         /// Entrypoint of this program which parses the following arguments from the CLI:
         /// <list type="bullet">
@@ -20,11 +35,23 @@ namespace TrafficScraper
             List<string> arguments = new List<string>();
             arguments.AddRange(args);
 
+            // Print the help section when requested
+            string[] helpLong = FindOption(arguments, "--help", 0);
+            string[] helpShort = FindOption(arguments, "-h", 0);
+            if (helpLong != null || helpShort != null)
+            {
+                PrintHelp();
+                return;
+            }
+
             // Parse the arguments
-            DirectoryInfo rawOutputFolder = GetDirectory(arguments, "--raw-dir");
-            DirectoryInfo processedOutputFolder = GetDirectory(arguments, "--processed-dir");
             Options options = new Options
-                {RawDataOutput = rawOutputFolder, ProcessedDataOutput = processedOutputFolder};
+            {
+                RawDataOutput = GetDirectory(arguments, "--raw-dir"),
+                ProcessedDataOutput = GetDirectory(arguments, "--processed-dir"),
+                ReaderOption = GetEnumOption<ReaderOption>(arguments, "--reader"),
+                WriterOption = GetEnumOption<WriterOption>(arguments, "--writer"),
+            };
 
             // Parse the Fetch url
             string[] urlOption = FindOption(arguments, "--fetch-url");
@@ -40,10 +67,10 @@ namespace TrafficScraper
 
                 options.FetchUri = fetchUrl;
             }
-            
+
             // Populate the options with defaults
             options.PopulateWithDefaults();
-            
+
             // Run the program
             Run(options);
         }
@@ -55,8 +82,14 @@ namespace TrafficScraper
         public static void Run(Options options)
         {
             string currentDatetime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            string rawOutputFile = Path.Combine(options.RawDataOutput.FullName, currentDatetime + ".json");
+            string rawOutputFile = Path.Combine(options.RawDataOutput.FullName, currentDatetime);
+            string processedOutputFile = Path.Combine(options.ProcessedDataOutput.FullName, currentDatetime);
             Downloader.DownloadToFile(options.FetchUri, rawOutputFile);
+
+            // Process the downloaded file
+            DataProcessor dataProcessor = new DataProcessor(
+                options.GetDataReader(rawOutputFile), options.GetDataWriter(processedOutputFile));
+            dataProcessor.Process();
         }
 
         /// <summary>
@@ -86,6 +119,33 @@ namespace TrafficScraper
             }
 
             return new DirectoryInfo(directory);
+        }
+
+        private static T GetEnumOption<T>(List<string> args, string optionName)
+        {
+            string[] foundOptions = FindOption(args, optionName);
+            string option = foundOptions?[0];
+            // Could not find the option
+            if (option == null) return default(T);
+            // Assuming the type is actually enum, otherwise this raises an exception
+            Type enumType = typeof(T);
+            string[] enumNames = enumType.GetEnumNames();
+            // Find the name with the correct capitalization and stuff (ignoring case when comparing)
+            foreach (string enumName in enumNames)
+            {
+                if (enumName.Equals(option, StringComparison.InvariantCultureIgnoreCase))
+                    // Found the value, return the actual enum value
+                    return (T) Enum.Parse(enumType, enumName);
+            }
+
+            // Couldn't find the enum, list the choices
+            Console.Error.WriteLine($"The value {option} is not valid for {optionName}");
+            Console.Error.WriteLine("Use one of the following values (case-insensitive):");
+            foreach (string enumName in enumNames)
+                Console.Error.WriteLine(enumName);
+            Environment.Exit(1);
+            // Never hits, but the compiler otherwise complains
+            return default(T);
         }
 
         /// <summary>
@@ -129,6 +189,18 @@ namespace TrafficScraper
         }
     }
 
+    public enum ReaderOption : byte
+    {
+        Default,
+        AnwbJsonReader
+    }
+
+    public enum WriterOption : byte
+    {
+        Default,
+        CsvWriter
+    }
+
     public class Options
     {
         private const string DefaultRawOutput = "raw";
@@ -138,6 +210,10 @@ namespace TrafficScraper
         public DirectoryInfo RawDataOutput { get; set; }
         public DirectoryInfo ProcessedDataOutput { get; set; }
         public Uri FetchUri { get; set; }
+
+        public ReaderOption ReaderOption { get; set; } = ReaderOption.Default;
+
+        public WriterOption WriterOption { get; set; } = WriterOption.Default;
 
         /// <summary>
         /// Sets the properties of this object to their respective defaults if they have not been set yet
@@ -152,6 +228,30 @@ namespace TrafficScraper
 
             if (FetchUri == null)
                 FetchUri = new Uri(DefaultFetchUri);
+        }
+
+        public DataReader GetDataReader(string inputFile)
+        {
+            switch (ReaderOption)
+            {
+                case ReaderOption.Default:
+                case ReaderOption.AnwbJsonReader:
+                    return new AnwbJsonDataReader(inputFile);
+            }
+
+            return null;
+        }
+
+        public DataWriter GetDataWriter(string outputFile)
+        {
+            switch (WriterOption)
+            {
+                case WriterOption.Default:
+                case WriterOption.CsvWriter:
+                    return new CsvDataWriter(outputFile);
+            }
+
+            return null;
         }
 
         /// <summary>

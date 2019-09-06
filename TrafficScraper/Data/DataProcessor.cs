@@ -22,6 +22,5 @@ namespace TrafficScraper.Data
             List<TrafficJam> trafficJams = reader.FetchTrafficJams();
             writer.WriteTrafficJams(trafficJams);
         }
-
     }
 }

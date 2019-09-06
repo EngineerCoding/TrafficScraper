@@ -8,11 +8,17 @@ namespace TrafficScraper
     [Serializable]
     public class FileExistsException : Exception
     {
-        public FileExistsException(string path) : base(GetMessage(path)) { }
+        public FileExistsException(string path) : base(GetMessage(path))
+        {
+        }
 
-        public FileExistsException(string path, Exception innerException) : base(GetMessage(path), innerException) { }
+        public FileExistsException(string path, Exception innerException) : base(GetMessage(path), innerException)
+        {
+        }
 
-        public FileExistsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        public FileExistsException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
 
         private static string GetMessage(string path)
         {
@@ -64,7 +70,7 @@ namespace TrafficScraper
             HttpWebRequest webRequest = (HttpWebRequest) WebRequest.Create(url);
             return (HttpWebResponse) webRequest.GetResponse();
         }
-        
+
         public static Stream DownloadUrlAsStream(string url)
         {
             return DownloadUrlAsStream(new Uri(url));
