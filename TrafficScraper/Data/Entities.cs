@@ -4,22 +4,6 @@ using System.Runtime.Serialization;
 
 namespace TrafficScraper.Data
 {
-    [Serializable]
-    public class InvalidTrafficJamException : Exception
-    {
-        public InvalidTrafficJamException(string message) : base(message)
-        {
-        }
-
-        public InvalidTrafficJamException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        public InvalidTrafficJamException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-    }
-
     public class Location
     {
         public decimal Latitude { get; set; }
@@ -61,6 +45,22 @@ namespace TrafficScraper.Data
         {
             if (location == null)
                 throw new InvalidTrafficJamException($"{field} must be set!");
+        }
+    }
+
+    [Serializable]
+    public class InvalidTrafficJamException : Exception
+    {
+        public InvalidTrafficJamException(string message) : base(message)
+        {
+        }
+
+        public InvalidTrafficJamException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public InvalidTrafficJamException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

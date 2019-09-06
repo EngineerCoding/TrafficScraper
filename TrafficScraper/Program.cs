@@ -111,7 +111,7 @@ namespace TrafficScraper
                 {
                     return Directory.CreateDirectory(directory);
                 }
-                catch (UnauthorizedAccessException exception)
+                catch (UnauthorizedAccessException)
                 {
                     Console.Error.WriteLine($"Could not create directory {directory}");
                     Environment.Exit(1);

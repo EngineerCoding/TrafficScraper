@@ -7,8 +7,8 @@ namespace TrafficScraper.Data
     {
         private readonly string outputFile;
 
-        public bool IncludeReason { get; set; } = false;
-        public bool IncludeDescription { get; set; } = false;
+        public bool IncludeReason { get; set; } = true;
+        public bool IncludeDescription { get; set; } = true;
 
         public DataWriter(string outputFile)
         {
@@ -70,6 +70,11 @@ namespace TrafficScraper.Data
 
         public override void WriteTrafficJams(StreamWriter streamWriter, List<TrafficJam> trafficJams)
         {
+            string header = "road,from_lat,from_lon,to_lat,to_lon";
+            if (IncludeReason) header += ",reason";
+            if (IncludeDescription) header += ",description";
+
+            streamWriter.WriteLine(header);
             trafficJams.ForEach(trafficJam => streamWriter.WriteLine(FormatTrafficJam(trafficJam)));
         }
 
@@ -80,7 +85,9 @@ namespace TrafficScraper.Data
         /// <returns>The delimiter joined data</returns>
         private string FormatTrafficJam(TrafficJam trafficJam)
         {
-            return string.Join(Delimiter, GetTrafficJamValues(trafficJam));
+            string delimiter = $"\"{Delimiter}\"";
+
+            return "\"" + string.Join(delimiter, GetTrafficJamValues(trafficJam)) + "\"";
         }
     }
 }

@@ -5,29 +5,7 @@ using System.Runtime.Serialization;
 
 namespace TrafficScraper
 {
-    [Serializable]
-    public class FileExistsException : Exception
-    {
-        public FileExistsException(string path) : base(GetMessage(path))
-        {
-        }
-
-        public FileExistsException(string path, Exception innerException) : base(GetMessage(path), innerException)
-        {
-        }
-
-        public FileExistsException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        private static string GetMessage(string path)
-        {
-            return $"File {path} already exists!";
-        }
-    }
-
-
-    public class Downloader
+    public static class Downloader
     {
         public static string DownloadUrl(string url)
         {
@@ -79,6 +57,27 @@ namespace TrafficScraper
         public static Stream DownloadUrlAsStream(Uri url)
         {
             return GetWebResponse(url).GetResponseStream();
+        }
+    }
+
+    [Serializable]
+    public class FileExistsException : Exception
+    {
+        public FileExistsException(string path) : base(GetMessage(path))
+        {
+        }
+
+        public FileExistsException(string path, Exception innerException) : base(GetMessage(path), innerException)
+        {
+        }
+
+        public FileExistsException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        private static string GetMessage(string path)
+        {
+            return $"File {path} already exists!";
         }
     }
 }

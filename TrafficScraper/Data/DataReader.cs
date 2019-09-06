@@ -68,9 +68,48 @@ namespace TrafficScraper.Data
         {
         }
 
-        public override List<TrafficJam> FetchTrafficJams(JToken jToken)
+        public override List<TrafficJam> FetchTrafficJams(JToken token)
         {
-            throw new NotImplementedException();
+            JArray roadEntries = JsonUtils.EnsureType<JObject>(token).ExpectProperty<JArray>("roadEntries");
+
+            List<TrafficJam> trafficJams = new List<TrafficJam>();
+            foreach (JToken roadEntry in roadEntries)
+                HandleRoadEntry(trafficJams, JsonUtils.EnsureType<JObject>(roadEntry));
+            return trafficJams;
         }
+
+        private static void HandleRoadEntry(List<TrafficJam> trafficJams, JObject obj)
+        {
+            string roadName = obj.ExpectStringProperty("road");
+            if (!obj.ContainsKey("events")) return;
+            JArray jsonTrafficJams = obj.ExpectProperty<JObject>("events").ExpectProperty<JArray>("trafficJams");
+            foreach (JToken trafficJamToken in jsonTrafficJams)
+            {
+                JObject trafficJam = JsonUtils.EnsureType<JObject>(trafficJamToken);
+                trafficJams.Add(TrafficJamFactory(roadName, trafficJam));
+            }
+        }
+
+        private static TrafficJam TrafficJamFactory(string roadName, JObject obj)
+        {
+            return new TrafficJam
+            {
+                RoadName = roadName,
+                FromLocation = LocationFactory(obj.ExpectProperty<JObject>("fromLoc")),
+                ToLocation = LocationFactory(obj.ExpectProperty<JObject>("toLoc")),
+                Reason = obj.ExpectStringProperty("reason"),
+                Description = obj.ExpectStringProperty("description"),
+            };
+        }
+
+        private static Location LocationFactory(JObject obj)
+        {
+            return new Location
+            {
+                Latitude = obj.ExpectDecimalProperty("lat"),
+                Longitude = obj.ExpectDecimalProperty("lon"),
+            };
+        }
+
     }
 }
