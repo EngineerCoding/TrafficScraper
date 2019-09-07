@@ -21,32 +21,12 @@ namespace Scheduler
 
             string commandFileName = args[1];
             string commandArguments = CommandAction.BuildArguments(args, 2);
-            IntervalRange[] intervals = GetIntervals(args[0]);
+            IntervalRange[] intervals = IntervalRange.GetIntervals(args[0], Console.Error);
+            if (intervals == null) Environment.Exit(1);
 
             IntervalScheduler intervalScheduler = new IntervalScheduler(
                 new CommandAction(commandFileName, commandArguments), intervals);
             intervalScheduler.RunScheduler(CancellationToken.None);
-        }
-
-        private static IntervalRange[] GetIntervals(string suppliedIntervalString)
-        {
-            string[] definedIntervals = suppliedIntervalString.Split(",");
-            IntervalRange[] intervals = new IntervalRange[definedIntervals.Length];
-
-            int index = 0;
-            foreach (string definedInterval in definedIntervals)
-            {
-                IntervalRange parsedInterval = IntervalRange.ParseInterval(definedInterval);
-                if (parsedInterval == null)
-                    Console.Error.Write("Invalid interval string: " + definedInterval);
-                else
-                    intervals[index++] = parsedInterval;
-            }
-
-            // Check if we actually have all intervals
-            if (index != intervals.Length)
-                Environment.Exit(1);
-            return intervals;
         }
 
         public static void PrintHelp()

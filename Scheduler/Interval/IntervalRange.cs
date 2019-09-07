@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace Scheduler.Interval
@@ -85,6 +86,27 @@ namespace Scheduler.Interval
             IntervalRangeType intervalRangeType = IntervalRangeTypeUtil.GetFromChar(match.Groups[6].Value[0]);
 
             return new IntervalRange(startingTime, endingTime, timeout, intervalRangeType);
+        }
+
+        public static IntervalRange[] GetIntervals(string suppliedIntervalString, TextWriter console = null)
+        {
+            string[] definedIntervals = suppliedIntervalString.Split(",");
+            IntervalRange[] intervals = new IntervalRange[definedIntervals.Length];
+
+            int index = 0;
+            foreach (string definedInterval in definedIntervals)
+            {
+                IntervalRange parsedInterval = ParseInterval(definedInterval);
+                if (parsedInterval == null)
+                    console?.WriteLine("Invalid interval string: " + definedInterval);
+                else
+                    intervals[index++] = parsedInterval;
+            }
+
+            // Check if we actually have all intervals
+            if (index != intervals.Length)
+                return null;
+            return intervals;
         }
     }
 }

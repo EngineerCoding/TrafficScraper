@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using Scheduler.Delegate;
+using Scheduler.Interval;
 using TrafficScraper.Data;
 
 namespace TrafficScraper
@@ -11,10 +14,11 @@ namespace TrafficScraper
         {
             Console.WriteLine("Usage:");
             Console.WriteLine($"{Environment.GetCommandLineArgs()[0]} [options], where [options] can be:");
-            Console.WriteLine("--help, -h               Show this text");
-            Console.WriteLine("--raw-dir       PATH     The directory to store downloaded files");
-            Console.WriteLine("--processed-dir PATH     The directory to store processed files");
-            Console.WriteLine("--fetch-url     URL      The URL to fetch data from");
+            Console.WriteLine("--help, -h                  Show this text");
+            Console.WriteLine("--raw-dir       PATH        The directory to store downloaded files");
+            Console.WriteLine("--processed-dir PATH        The directory to store processed files");
+            Console.WriteLine("--fetch-url     URL         The URL to fetch data from");
+            Console.WriteLine("--interval      [INTERVAL]  Runs this scraper on the defined interval");
             string writerOptions = string.Join(", ", typeof(WriterOption).GetEnumNames());
             string readerOptions = string.Join(", ", typeof(ReaderOption).GetEnumNames());
             Console.WriteLine($"--reader {{{readerOptions}}}");
@@ -44,6 +48,15 @@ namespace TrafficScraper
                 return;
             }
 
+            // First parse the interval, if available
+            string[] intervalOption = FindOption(arguments, "--interval");
+            IntervalRange[] intervalRanges = null;
+            if (intervalOption != null)
+            {
+                intervalRanges = IntervalRange.GetIntervals(intervalOption[0], Console.Error);
+                if (intervalRanges == null) Environment.Exit(1);
+            }
+
             // Parse the arguments
             Options options = new Options
             {
@@ -68,28 +81,16 @@ namespace TrafficScraper
                 options.FetchUri = fetchUrl;
             }
 
-            // Populate the options with defaults
-            options.PopulateWithDefaults();
-
-            // Run the program
-            Run(options);
-        }
-
-        /// <summary>
-        /// Method which fetches data and processes it
-        /// </summary>
-        /// <param name="options">The options of the program</param>
-        public static void Run(Options options)
-        {
-            string currentDatetime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            string rawOutputFile = Path.Combine(options.RawDataOutput.FullName, currentDatetime);
-            string processedOutputFile = Path.Combine(options.ProcessedDataOutput.FullName, currentDatetime);
-            Downloader.DownloadToFile(options.FetchUri, rawOutputFile);
-
-            // Process the downloaded file
-            DataProcessor dataProcessor = new DataProcessor(
-                options.GetDataReader(rawOutputFile), options.GetDataWriter(processedOutputFile));
-            dataProcessor.Process();
+            BaseAction action = new DownloadAndProcessAction(options);
+            if (intervalRanges == null)
+            {
+                action.Execute();
+            }
+            else
+            {
+                IntervalScheduler intervalScheduler = new IntervalScheduler(action, intervalRanges);
+                intervalScheduler.RunScheduler(CancellationToken.None);
+            }
         }
 
         /// <summary>
