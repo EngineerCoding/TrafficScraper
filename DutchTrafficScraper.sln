@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrafficScraper", "TrafficScraper\TrafficScraper.csproj", "{AA4E13FF-73D1-4B8B-9C6E-18359F456A3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler", "Scheduler\Scheduler.csproj", "{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{AA4E13FF-73D1-4B8B-9C6E-18359F456A3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA4E13FF-73D1-4B8B-9C6E-18359F456A3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA4E13FF-73D1-4B8B-9C6E-18359F456A3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
