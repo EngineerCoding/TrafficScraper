@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TravelLogger</title>
+
+    <link rel="stylesheet" href="~/css/main.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+    <body>
+        <nav class="blue">
+            <div class="nav-wrapper">
+                <a href="#!" class="brand-logo"><i class="material-icons">room</i>TraverLogger</a>
+            </div>
+        </nav>
+
+        <main class="container vertical-center">
+            @RenderBody()
+        </main>
+
+        <footer class="page-footer blue-grey lighten-4">
+            <div class="footer-copyright blue-grey lighten-3">
+                <div class="container">
+                    © 2019 - Wesley Ameling
+                </div>
+            </div>
+        </footer>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    </body>
+</html>

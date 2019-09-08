@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrafficScraper", "TrafficSc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler", "Scheduler\Scheduler.csproj", "{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelLogger", "TravelLogger\TravelLogger.csproj", "{3F451DC3-FEC1-47FF-A093-F380A44DB891}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB942FA3-8B0C-4469-8F80-B2894C31EBFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F451DC3-FEC1-47FF-A093-F380A44DB891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F451DC3-FEC1-47FF-A093-F380A44DB891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F451DC3-FEC1-47FF-A093-F380A44DB891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F451DC3-FEC1-47FF-A093-F380A44DB891}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
