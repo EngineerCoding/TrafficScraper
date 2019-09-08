@@ -4,7 +4,7 @@ using TravelLogger.Models;
 
 namespace TravelLogger.Controllers
 {
-    public class LogController : Controller
+    public class PageController : Controller
     {
         public IActionResult Index()
         {
