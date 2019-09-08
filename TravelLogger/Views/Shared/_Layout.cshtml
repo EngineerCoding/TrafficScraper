@@ -2,6 +2,10 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
+@{
+    string logoUrl = SignInManager.IsSignedIn(User) ? "/Log/Landing" : "/";
+}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,8 +27,9 @@
             }
 
             <div class="nav-wrapper">
-                <a href="/" class="brand-logo"><i class="material-icons">room</i>TraverLogger</a>
+                <a href="@logoUrl" class="brand-logo"><i class="material-icons">room</i>TraverLogger</a>
                 <ul class="right">
+                    @RenderSection("NavigationItems", required: false)
                     <li>
                         @if (SignInManager.IsSignedIn(User))
                         {
@@ -62,5 +67,6 @@
             $(".dropdown-trigger").dropdown();
         });
     </script>
+    @RenderSection("Scripts", required: false)
     </body>
 </html>

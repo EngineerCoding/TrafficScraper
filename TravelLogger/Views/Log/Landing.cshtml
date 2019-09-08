@@ -1,0 +1,37 @@
+@model TravelLogger.Models.Data.TravelLog
+
+@{
+    ViewData["Title"] = "Logger";
+}
+
+@if (@Model != null)
+{
+    <div class="row reset-margin">
+        <div class="col s12 input-field">
+            <textarea id="comment" class="materialize-textarea"></textarea>
+            <label for="comment">Comment for trip</label>
+        </div>
+        <div class="col s12">
+            <button class="full-width btn-large waves-effect waves-light" id="arrival">Log Time of Arrival</button>
+        </div>
+    </div>
+}
+<div class="row reset-margin">
+    <div class="col s12">
+        <button class="full-width btn-large waves-effect waves-light" id="departure">
+            @if (@Model == null)
+            {
+                <span>Log Time of Departure</span>
+            }
+            else
+            {
+                <span>Discard last &amp; Log Time of Departure</span>
+            }
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.6/dist/loadingoverlay.min.js"></script>
+    <script src="~/js/logLanding.js"></script>
+}

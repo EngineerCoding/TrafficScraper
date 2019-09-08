@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TravelLogger.Models;
 
@@ -6,13 +8,18 @@ namespace TravelLogger.Controllers
 {
     public class PageController : Controller
     {
-        public IActionResult Index()
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public PageController(UserManager<IdentityUser> userManager)
         {
-            return View();
+            _userManager = userManager;
         }
 
-        public IActionResult StartLog()
+        public async Task<IActionResult> Index()
         {
+            IdentityUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (user != null)
+                return RedirectToAction("Landing", "Log");
             return View();
         }
 

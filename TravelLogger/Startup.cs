@@ -26,7 +26,7 @@ namespace TravelLogger
 
             services.AddDbContext<TravelLoggerContext>(
                 options => options.UseMySql(Configuration.GetConnectionString("TravelLogger")));
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<TravelLoggerContext>();
 
             services.ConfigureApplicationCookie(options =>
@@ -35,8 +35,8 @@ namespace TravelLogger
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 
                 options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
                 options.AccessDeniedPath = "/Account/AccessDenied";
-                options.SlidingExpiration = true;
             });
         }
 

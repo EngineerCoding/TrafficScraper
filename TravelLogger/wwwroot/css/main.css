@@ -13,3 +13,12 @@ main {
     flex-direction: column;
     justify-content: center;
 }
+
+.full-width {
+    width: 100%;
+}
+
+.reset-margin {
+    margin-left: initial !important;
+    margin-right: initial !important;
+}

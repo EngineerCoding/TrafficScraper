@@ -27,7 +27,7 @@ namespace TravelLogger.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -36,7 +36,7 @@ namespace TravelLogger.Pages.Account
                         lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
-                    return LocalRedirect("/");
+                    return LocalRedirect(returnUrl?.Trim() ?? "/");
                 }
 
                 ErrorString = "Invalid credentials";
