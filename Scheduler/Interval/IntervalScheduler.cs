@@ -51,8 +51,7 @@ namespace Scheduler.Interval
                 int nearestIndex = FindNearestIndex(executeOnDateTime);
                 SleepUntilDateTime(executeOnDateTime[nearestIndex], cancellationToken);
                 // Check if we were cancelled
-                if (cancellationToken.IsCancellationRequested)
-                    break;
+                cancellationToken.ThrowIfCancellationRequested();
                 // First increase the time to calculate the next datetime object
                 DateTime forDateTime = DateTime.Now.AddMinutesRound(1);
                 if (forDateTime == previousDateTime)

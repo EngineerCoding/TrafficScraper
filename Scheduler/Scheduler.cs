@@ -25,7 +25,7 @@ namespace Scheduler
 
         public abstract void RunScheduler(CancellationToken cancellationToken);
 
-        public virtual async void RunSchedulerAsync(CancellationToken? cancellationToken = null)
+        public virtual async Task RunSchedulerAsync(CancellationToken? cancellationToken = null)
         {
             CancellationToken token = cancellationToken ?? CancellationToken.None;
             await Task.Run(() => RunScheduler(token));
