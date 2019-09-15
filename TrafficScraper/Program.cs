@@ -5,6 +5,7 @@ using System.Threading;
 using Scheduler.Delegate;
 using Scheduler.Interval;
 using TrafficScraper.Data;
+using TrafficScraper.Data.Writer;
 
 namespace TrafficScraper
 {
@@ -19,10 +20,11 @@ namespace TrafficScraper
             Console.WriteLine("--processed-dir PATH        The directory to store processed files");
             Console.WriteLine("--fetch-url     URL         The URL to fetch data from");
             Console.WriteLine("--interval      [INTERVAL]  Runs this scraper on the defined interval");
-            string writerOptions = string.Join(", ", typeof(WriterOption).GetEnumNames());
             string readerOptions = string.Join(", ", typeof(ReaderOption).GetEnumNames());
             Console.WriteLine($"--reader {{{readerOptions}}}");
-            Console.WriteLine($"--writer {{{writerOptions}}}");
+            Console.WriteLine("--database-output <ODBC connection_string> [table_name]");
+            Console.WriteLine("--file-output [path]");
+            Console.WriteLine("--remove-raw");
         }
 
         /// <summary>
@@ -57,13 +59,30 @@ namespace TrafficScraper
                 if (intervalRanges == null) Environment.Exit(1);
             }
 
+            DataWriterOption selectedOption = null;
+            DataWriterOption[] availableOptions =
+            {
+                new DbDataWriterOption(), new FileDataWriterOption()
+            };
+
+            foreach (DataWriterOption option in availableOptions)
+            {
+                if (option.isAvailable(arguments))
+                {
+                    if (!option.validArguments()) Environment.Exit(1);
+                    selectedOption = option;
+                    break;
+                }
+            }
+
             // Parse the arguments
             Options options = new Options
             {
                 RawDataOutput = GetDirectory(arguments, "--raw-dir"),
                 ProcessedDataOutput = GetDirectory(arguments, "--processed-dir"),
                 ReaderOption = GetEnumOption<ReaderOption>(arguments, "--reader"),
-                WriterOption = GetEnumOption<WriterOption>(arguments, "--writer"),
+                DataWriterOption = selectedOption,
+                RemoveRawFiles = FindOption(arguments, "--remove-raw", 0) != null
             };
 
             // Parse the Fetch url
@@ -157,8 +176,9 @@ namespace TrafficScraper
         /// <param name="arguments">The arguments from the CLI</param>
         /// <param name="optionName">The name of the option as it appears on the CLI</param>
         /// <param name="options">The amount of values this option uses</param>
+        /// <param name="exit">Whether the program should exit when not found</param>
         /// <returns>An array containing the values of the options, or null when the option could not be found</returns>
-        private static string[] FindOption(List<string> arguments, string optionName, int options = 1)
+        public static string[] FindOption(List<string> arguments, string optionName, int options = 1, bool exit = true)
         {
             int optionIndex = arguments.IndexOf(optionName);
             if (optionIndex != -1)
@@ -173,8 +193,9 @@ namespace TrafficScraper
                 // Check if we actually found all the required options
                 if (foundItemsCounter != options)
                 {
-                    Console.Error.WriteLine($"Expected {options} for option {optionName}," +
-                                            $" actually found {foundOptions} options.");
+                    if (!exit) return null;
+                    Console.Error.WriteLine($"Expected {options} arguments for option {optionName}," +
+                                            $" actually found {foundOptions.Length} options.");
                     Environment.Exit(1);
                 }
 
@@ -196,12 +217,6 @@ namespace TrafficScraper
         AnwbJsonReader
     }
 
-    public enum WriterOption : byte
-    {
-        Default,
-        CsvWriter
-    }
-
     public class Options
     {
         private const string DefaultRawOutput = "raw";
@@ -214,7 +229,9 @@ namespace TrafficScraper
 
         public ReaderOption ReaderOption { get; set; } = ReaderOption.Default;
 
-        public WriterOption WriterOption { get; set; } = WriterOption.Default;
+        public DataWriterOption DataWriterOption { get; set; }
+
+        public bool RemoveRawFiles { get; set; } = false;
 
         /// <summary>
         /// Sets the properties of this object to their respective defaults if they have not been set yet
@@ -226,6 +243,12 @@ namespace TrafficScraper
 
             if (ProcessedDataOutput == null)
                 ProcessedDataOutput = CreateOrGetDirInfo(DefaultProcessedOutput);
+            if (DataWriterOption == null)
+            {
+                DataWriterOption = new FileDataWriterOption();
+                DataWriterOption.isAvailable(new List<string>());
+            }
+
 
             if (FetchUri == null)
                 FetchUri = new Uri(DefaultFetchUri);
@@ -243,16 +266,15 @@ namespace TrafficScraper
             return null;
         }
 
-        public DataWriter GetDataWriter(string outputFile)
+        public DataWriter GetDataWriter()
         {
-            switch (WriterOption)
+            DataWriter writer = DataWriterOption.GetWriter();
+            if (writer is FileDataWriter fileDataWriter)
             {
-                case WriterOption.Default:
-                case WriterOption.CsvWriter:
-                    return new CsvDataWriter(outputFile);
+                fileDataWriter.SetParentDirectory(ProcessedDataOutput.ToString());
             }
 
-            return null;
+            return writer;
         }
 
         /// <summary>

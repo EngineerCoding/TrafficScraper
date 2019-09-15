@@ -1,23 +1,28 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace TrafficScraper.Data
+namespace TrafficScraper.Data.Writer
 {
-    public abstract class DataWriter
+    public abstract class FileDataWriter : DataWriter
     {
-        private readonly string outputFile;
+        private string _outputFile;
 
-        public bool IncludeReason { get; set; } = true;
-        public bool IncludeDescription { get; set; } = true;
-
-        public DataWriter(string outputFile)
+        public FileDataWriter(string outputFile) : base()
         {
-            this.outputFile = outputFile;
+            _outputFile = outputFile;
         }
 
-        public void WriteTrafficJams(List<TrafficJam> trafficJams)
+        public void SetParentDirectory(string path)
         {
-            using (FileStream fileStream = File.Open(outputFile, FileMode.Create, FileAccess.Write))
+            if (!Path.IsPathRooted(_outputFile))
+            {
+                _outputFile = Path.Combine(_outputFile);
+            }
+        }
+
+        public override void WriteTrafficJams(List<TrafficJam> trafficJams)
+        {
+            using (FileStream fileStream = File.Open(_outputFile, FileMode.Create, FileAccess.Write))
             {
                 WriteTrafficJams(fileStream, trafficJams);
             }
@@ -43,9 +48,9 @@ namespace TrafficScraper.Data
         }
     }
 
-    public abstract class TextDataWriter : DataWriter
+    public abstract class TextFileDataWriter : FileDataWriter
     {
-        public TextDataWriter(string outputFile) : base(outputFile)
+        public TextFileDataWriter(string outputFile) : base(outputFile)
         {
         }
 
@@ -60,11 +65,11 @@ namespace TrafficScraper.Data
         public abstract void WriteTrafficJams(StreamWriter streamWriter, List<TrafficJam> trafficJams);
     }
 
-    public class CsvDataWriter : TextDataWriter
+    public class CsvFileDataWriter : TextFileDataWriter
     {
         public char Delimiter { get; set; } = ',';
 
-        public CsvDataWriter(string outputFile) : base(outputFile)
+        public CsvFileDataWriter(string outputFile) : base(outputFile)
         {
         }
 

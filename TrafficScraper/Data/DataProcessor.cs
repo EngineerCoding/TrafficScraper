@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TrafficScraper.Data.Writer;
 
 namespace TrafficScraper.Data
 {

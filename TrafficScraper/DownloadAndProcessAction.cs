@@ -19,13 +19,17 @@ namespace TrafficScraper
         {
             string currentDatetime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string rawOutputFile = Path.Combine(_options.RawDataOutput.FullName, currentDatetime);
-            string processedOutputFile = Path.Combine(_options.ProcessedDataOutput.FullName, currentDatetime);
             Downloader.DownloadToFile(_options.FetchUri, rawOutputFile);
 
             // Process the downloaded file
             DataProcessor dataProcessor = new DataProcessor(
-                _options.GetDataReader(rawOutputFile), _options.GetDataWriter(processedOutputFile));
+                _options.GetDataReader(rawOutputFile), _options.GetDataWriter());
             dataProcessor.Process();
+
+            if (_options.RemoveRawFiles)
+            {
+                File.Delete(rawOutputFile);
+            }
         }
     }
 }

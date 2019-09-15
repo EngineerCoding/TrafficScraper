@@ -11,7 +11,7 @@ namespace Scheduler
 
         public Scheduler(Action action)
         {
-            this._action = action;
+            _action = action;
         }
 
         public Scheduler(BaseAction baseAction) : this(baseAction.Execute)
