@@ -9,6 +9,8 @@ namespace Scheduler.Interval
     public class IntervalScheduler : Scheduler
     {
         private readonly IntervalRange[] _intervals;
+        private byte _dayFlags;
+        private bool _setDayFlags = false;
 
         public IntervalScheduler(Action action, IntervalRange range) : this(action, new[] {range})
         {
@@ -38,6 +40,15 @@ namespace Scheduler.Interval
             }
         }
 
+        public void SetDayFlags(byte flags)
+        {
+            _setDayFlags = true;
+            byte maxValue = DayUtils.GetMaxValue();
+            if (flags == 0 || flags > maxValue)
+                throw new ArgumentOutOfRangeException($"Flags should be > 0 and < ${maxValue}");
+            _dayFlags = flags;
+        }
+
         public override void RunScheduler(CancellationToken cancellationToken)
         {
             DateTime[] executeOnDateTime = new DateTime[_intervals.Length];
@@ -56,12 +67,29 @@ namespace Scheduler.Interval
                 DateTime forDateTime = DateTime.Now.AddMinutesRound(1);
                 if (forDateTime == previousDateTime)
                     forDateTime = forDateTime.AddMinutes(1);
+                forDateTime = HandleDayFlags(forDateTime);
                 previousDateTime = forDateTime;
+
                 // Execute
                 RunActionAsync();
                 // Get the next DateTime
                 executeOnDateTime[nearestIndex] = _intervals[nearestIndex].GetNextDateTime(forDateTime);
             }
+        }
+
+        private DateTime HandleDayFlags(DateTime dateTime)
+        {
+            if (_setDayFlags)
+            {
+                byte flag = dateTime.DayOfWeek.GetFlag();
+                while ((_dayFlags & flag) != flag)
+                {
+                    dateTime = dateTime.AddDays(1);
+                    flag = dateTime.DayOfWeek.GetFlag();
+                }
+            }
+
+            return dateTime;
         }
 
         // statics
