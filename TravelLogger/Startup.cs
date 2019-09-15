@@ -24,8 +24,10 @@ namespace TravelLogger
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            string connectionString = Configuration.GetConnectionString("TravelLogger");
             services.AddDbContext<TravelLoggerContext>(
-                options => options.UseMySql(Configuration.GetConnectionString("TravelLogger")));
+                options => options.UseNpgsql(connectionString));
+
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<TravelLoggerContext>();
 
