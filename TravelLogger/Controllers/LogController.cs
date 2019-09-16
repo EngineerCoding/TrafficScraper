@@ -49,7 +49,10 @@ namespace TravelLogger.Controllers
         public async Task<IActionResult> Depart()
         {
             TravelLog log = await GetActiveLog();
-            if (log != null) _context.Remove(log);
+            if (log != null)
+            {
+                return Conflict();
+            }
 
             // Start a new TravelLog
             _context.Add(
@@ -60,6 +63,19 @@ namespace TravelLogger.Controllers
                 }
             );
             _context.SaveChanges();
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Discard()
+        {
+            TravelLog log = await GetActiveLog();
+            if (log != null)
+            {
+                _context.Remove(log);
+                _context.SaveChanges();
+            }
+
             return Ok();
         }
 

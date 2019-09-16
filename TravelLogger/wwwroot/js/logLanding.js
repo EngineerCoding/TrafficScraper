@@ -12,6 +12,10 @@ $(document).ready(function() {
         });
     }
 
+    function handleDiscard(event) {
+        sendRequest("/Log/Discard", "DELETE");
+    }
+
     function handleDeparture(event) {
         sendRequest("/Log/Depart", "PUT");
     }
@@ -20,10 +24,10 @@ $(document).ready(function() {
         var data = {};
         var comment = $("#comment").val().trim();
         if (comment.length > 0) data.comment = comment;
-        console.log(data);
         sendRequest("/Log/Arrive", "POST", data);
     }
 
+    $("#discard").click(handleDiscard);
     $("#arrival").click(handleArrival);
     $("#departure").click(handleDeparture);
 });

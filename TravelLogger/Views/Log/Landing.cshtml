@@ -18,14 +18,14 @@
 }
 <div class="row reset-margin">
     <div class="col s12">
-        <button class="full-width btn-large waves-effect waves-light" id="departure">
+        <button class="full-width btn-large waves-effect waves-light" id="@(@Model == null ? "departure" : "discard")">
             @if (@Model == null)
             {
                 <span>Log Time of Departure</span>
             }
             else
             {
-                <span>Discard last &amp; Log Time of Departure</span>
+                <span>Discard</span>
             }
         </button>
     </div>
