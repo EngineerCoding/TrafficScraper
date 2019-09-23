@@ -22,7 +22,8 @@ namespace TrafficScraper
             Console.WriteLine("--interval      [INTERVAL]  Runs this scraper on the defined interval");
             string readerOptions = string.Join(", ", typeof(ReaderOption).GetEnumNames());
             Console.WriteLine($"--reader {{{readerOptions}}}");
-            Console.WriteLine("--database-output <ODBC connection_string> [table_name]");
+            Console.WriteLine("--odbc <ODBC connection_string> [table_name]");
+            Console.WriteLine("--psql <connection_string> [table_name]");
             Console.WriteLine("--file-output [path]");
             Console.WriteLine("--remove-raw");
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using TrafficScraper.Data.Writer;
 
 namespace TrafficScraper
@@ -16,13 +17,36 @@ namespace TrafficScraper
 
     public class DbDataWriterOption : DataWriterOption
     {
+        private const string ODBC_OPTION = "TrafficScraper.Data.Writer.Database.OdbcDataWriter";
+        private const string PSQL_OPTION = "TrafficScraper.Data.Writer.Database.PostgreSqlDataWriter";
+
         private string[] _arguments = null;
+        private Type type;
 
         public override bool isAvailable(List<string> args)
         {
-            _arguments = Program.FindOption(args, "--database-output", 2, false);
+            // Check if we are using ODBC
+            if (IsSubOptionAvailable(args, "--odbc"))
+            {
+                type = Assembly.GetExecutingAssembly().GetType(ODBC_OPTION);
+            }
+            else if (IsSubOptionAvailable(args, "--psql"))
+            {
+                type = Assembly.GetExecutingAssembly().GetType(PSQL_OPTION);
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsSubOptionAvailable(List<string> args, string option)
+        {
+            _arguments = Program.FindOption(args, option, 2, false);
             if (_arguments == null)
-                _arguments = Program.FindOption(args, "--database-output");
+                _arguments = Program.FindOption(args, option);
 
             return _arguments != null;
         }
@@ -40,13 +64,7 @@ namespace TrafficScraper
             if (_arguments == null)
                 throw new InvalidOperationException();
 
-            switch (_arguments.Length)
-            {
-                case 1: return new DatabaseDataWriter(_arguments[0]);
-                case 2: return new DatabaseDataWriter(_arguments[0], _arguments[1]);
-            }
-
-            return null;
+            return (DataWriter) Activator.CreateInstance(type, _arguments);
         }
     }
 
@@ -84,6 +102,4 @@ namespace TrafficScraper
             return new CsvFileDataWriter(_outputFile);
         }
     }
-
-
 }

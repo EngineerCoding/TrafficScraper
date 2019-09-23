@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -110,6 +109,5 @@ namespace TrafficScraper.Data
                 Longitude = obj.ExpectDecimalProperty("lon"),
             };
         }
-
     }
 }
